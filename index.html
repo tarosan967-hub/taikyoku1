@@ -101,7 +101,10 @@ button[aria-pressed="true"] { background: var(--ai); border-color: var(--ai); co
   align-items: baseline; padding: 10px 12px; border-radius: 6px; background: var(--surface);
 }
 .list .no { font-family: var(--font-display); color: var(--muted); font-variant-numeric: tabular-nums; }
-.list .nm { font-weight: 700; }
+.list .nm { font-weight: 700; line-height: 2; }
+rt { font-family: var(--font-body); font-weight: 500; font-size: .55em; letter-spacing: .02em; }
+.list rt { color: var(--muted); }
+.sub b, .now .name { line-height: 1.9; }
 .list .tm { font-size: .8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
 .list .ht { grid-column: 2 / 4; font-size: .85rem; color: var(--muted); }
 .list li.active button { border-color: var(--shu); box-shadow: inset 4px 0 0 var(--shu); background: var(--ai-soft); }
@@ -178,6 +181,25 @@ const POSES = [
 ];
 POSES.forEach((p, i) => { p.end = i + 1 < POSES.length ? POSES[i + 1].t : END; });
 
+// フリガナ（語ごとに [漢字, 読み]）。一般的な日本語読みで、教室での呼び方と違う場合があります
+const YOMI = {
+  1:  [["渾元樁", "こんげんとう"], ["　"], ["起勢", "きせい"]],
+  2:  [["開太極", "かいたいきょく"]],
+  3:  [["上歩", "じょうほ"], ["打擠", "だせい"]],
+  4:  [["右", "みぎ"], ["琵琶勢", "びわせい"]],
+  5:  [["攬雀尾", "らんじゃくび"]],
+  6:  [["斜単鞭", "しゃたんべん"]],
+  7:  [["左右", "さゆう"], ["搬攔", "はんらん"]],
+  8:  [["堤手", "ていしゅ"], ["上勢", "じょうせい"]],
+  9:  [["白鶴", "はっかく"], ["亮翅", "りょうし"]],
+  10: [["楼膝", "ろうしつ"], ["拗歩", "ようほ"]],
+  11: [["左", "ひだり"], ["琵琶勢", "びわせい"]],
+  12: [["並歩", "へいほ"], ["進歩", "しんぽ"], ["搬攔捶", "はんらんすい"]],
+  13: [["如封", "じょふう"], ["似閉", "じへい"]],
+  14: [["十字手", "じゅうじしゅ"]],
+};
+const rubyName = p => YOMI[p.no].map(([k, r]) => r ? `<ruby>${k}<rt>${r}</rt></ruby>` : k).join("");
+
 const fmt = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
 const $ = id => document.getElementById(id);
 
@@ -185,7 +207,7 @@ const $ = id => document.getElementById(id);
 const listEl = $("list");
 POSES.forEach((p, i) => {
   const li = document.createElement("li");
-  li.innerHTML = `<button type="button"><span class="no">${p.no}</span><span class="nm">${p.name}</span>` +
+  li.innerHTML = `<button type="button"><span class="no">${p.no}</span><span class="nm">${rubyName(p)}</span>` +
     `<span class="tm">${fmt(p.t)}〜${fmt(p.end)}</span><span class="ht">${p.hint}</span></button>`;
   li.querySelector("button").addEventListener("click", () => jump(i));
   listEl.appendChild(li);
@@ -201,10 +223,10 @@ function show(i) {
   if (i === current) return;
   current = i;
   const p = POSES[i];
-  $("subName").textContent = `${p.no}. ${p.name}`;
+  $("subName").innerHTML = `${p.no}. ${rubyName(p)}`;
   $("subHint").textContent = p.hint;
   $("sub").hidden = !subOn;
-  $("nowName").textContent = `${p.no}. ${p.name}`;
+  $("nowName").innerHTML = `${p.no}. ${rubyName(p)}`;
   $("nowHint").textContent = p.hint;
   [...listEl.children].forEach((li, k) => li.classList.toggle("active", k === i));
   if (window.matchMedia("(min-width: 900px)").matches) {
