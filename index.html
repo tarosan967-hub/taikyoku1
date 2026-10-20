@@ -93,22 +93,7 @@ button {
 button:hover { border-color: var(--ai); }
 button:focus-visible { outline: 2px solid var(--ai); outline-offset: 2px; }
 button[aria-pressed="true"] { background: var(--ai); border-color: var(--ai); color: var(--surface); }
-.views { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-.views button { font-weight: 700; }
-.viewnote { font-size: .8rem; color: var(--muted); }
-.loopbox {
-  display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: center;
-  background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px;
-}
-.loopbox .cap { font-size: .75rem; color: var(--muted); letter-spacing: .06em; }
-.loopsel { display: flex; gap: 6px; align-items: center; min-width: 0; }
-select {
-  font: inherit; font-size: .9rem; color: var(--ink); background: var(--bg);
-  border: 1px solid var(--line); border-radius: 4px; padding: 6px 8px; min-height: 36px; max-width: 11.5em;
-}
-select:focus-visible { outline: 2px solid var(--ai); outline-offset: 2px; }
-.list li.inloop button { border-style: dashed; border-color: var(--ai); }
-.list li.active.inloop button { border-style: solid; border-color: var(--shu); }
+.spacer { flex: 1 1 auto; }
 
 .list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; min-width: 0; }
 .list li button {
@@ -133,18 +118,13 @@ rt { font-family: var(--font-body); font-weight: 500; font-size: .55em; letter-s
 <div class="wrap">
   <header>
     <h1>太極拳 型第1番</h1>
-    <p>JMMAの型第1番の動画（後ろから撮影・前から撮影の2本）に、姿勢名と見分けるポイントを表示しながら再生します。
+    <p>JMMA太極拳「型1番『後方より撮影』」に姿勢名と見分けるポイントを表示しながら再生します。
       「0. 起式‐三體式（形意拳）」は<a href="https://www.youtube.com/watch?v=bOBaw6wwiK0" target="_blank" rel="noopener">別の動画</a>です。</p>
     <p class="unofficial"><strong>非公式</strong>　このページは受講者が個人の学習用に作ったメモで、JMMA日本武術むすび協会の公式教材ではありません。姿勢の区切りや説明は作成者の解釈です。正しい動きは教室で先生に確認してください。</p>
   </header>
 
   <div class="layout">
     <section class="stage" aria-label="動画">
-      <div class="views" role="group" aria-label="動画の切り替え">
-        <button type="button" data-view="back" aria-pressed="true">後ろから見る</button>
-        <button type="button" data-view="front" aria-pressed="false">前から見る</button>
-        <span class="viewnote" id="viewNote"></span>
-      </div>
       <div class="screen" id="screen">
         <div class="video"><div id="player"></div></div>
         <div class="sub" id="sub" aria-live="polite"><b id="subName">再生すると姿勢名が出ます</b><span id="subHint"></span></div>
@@ -158,25 +138,13 @@ rt { font-family: var(--font-body); font-weight: 500; font-size: .55em; letter-s
 
       <div class="controls">
         <div class="group"><button id="prev" type="button">◀ 前の姿勢</button><button id="next" type="button">次の姿勢 ▶</button></div>
+        <div class="group"><button id="loop" type="button" aria-pressed="false">この姿勢をくり返す</button></div>
         <div class="group" role="group" aria-label="再生速度"><span class="cap">速度</span>
           <button type="button" data-rate="0.5" aria-pressed="false">0.5</button>
           <button type="button" data-rate="0.75" aria-pressed="false">0.75</button>
           <button type="button" data-rate="1" aria-pressed="true">1</button>
         </div>
         <div class="group"><button id="subToggle" type="button" aria-pressed="true">字幕</button><button id="fs" type="button">全画面</button></div>
-      </div>
-      <div class="loopbox" role="group" aria-label="くり返し再生">
-        <span class="cap">くり返し</span>
-        <div class="loopsel">
-          <select id="loopFrom" aria-label="くり返しの最初の姿勢"></select>
-          <span>〜</span>
-          <select id="loopTo" aria-label="くり返しの最後の姿勢"></select>
-        </div>
-        <div class="group">
-          <button id="loop" type="button" aria-pressed="false">くり返す</button>
-          <button id="loopAround" type="button">前後もふくめる</button>
-          <button id="loopOne" type="button">この姿勢だけ</button>
-        </div>
       </div>
       <p class="note">秒数は動画を見て判断した目安です。つなぎの動作は1〜2秒前後することがあります（とくに7〜9番）。</p>
     </section>
@@ -193,69 +161,25 @@ rt { font-family: var(--font-body); font-weight: 500; font-size: .55em; letter-s
 </div>
 
 <script>
+const VIDEO_ID = "v6D7IM9EYZc";
+const END = 94;
 const POSES = [
-  { no: 1,  name: "渾元樁　起勢" },
-  { no: 2,  name: "開太極" },
-  { no: 3,  name: "上歩打擠" },
-  { no: 4,  name: "右琵琶勢" },
-  { no: 5,  name: "攬雀尾" },
-  { no: 6,  name: "斜単鞭" },
-  { no: 7,  name: "左右搬攔" },
-  { no: 8,  name: "堤手上勢" },
-  { no: 9,  name: "白鶴亮翅" },
-  { no: 10, name: "楼膝拗歩" },
-  { no: 11, name: "左琵琶勢" },
-  { no: 12, name: "並歩進歩搬攔捶" },
-  { no: 13, name: "如封似閉" },
-  { no: 14, name: "十字手" },
+  { no: 1,  name: "渾元樁　起勢",     t: 0,  hint: "0:00〜0:03は立って静止。0:04から両腕を胸の前に上げる" },
+  { no: 2,  name: "開太極",           t: 9,  hint: "両腕を左右に開く" },
+  { no: 3,  name: "上歩打擠",         t: 12, hint: "一歩前に出て、両手を合わせて押し出す（0:18〜0:20）" },
+  { no: 4,  name: "右琵琶勢",         t: 21, hint: "片手を胸の前、もう片手を前に出して構える" },
+  { no: 5,  name: "攬雀尾",           t: 27, hint: "両手を引き寄せてから前へ押す" },
+  { no: 6,  name: "斜単鞭",           t: 33, hint: "向きを変え、腕を斜め前に伸ばして止まる（0:37〜0:41）" },
+  { no: 7,  name: "左右搬攔",         t: 44, hint: "体を左右にひねりながら腕を払う" },
+  { no: 8,  name: "堤手上勢",         t: 59, hint: "両手を前に上げ、前足を軽く浮かせる" },
+  { no: 9,  name: "白鶴亮翅",         t: 63, hint: "片手を頭の上に上げ、膝を持ち上げる（1:05）" },
+  { no: 10, name: "楼膝拗歩",         t: 66, hint: "膝の前を払いながら踏み出し、手で押し出す" },
+  { no: 11, name: "左琵琶勢",         t: 72, hint: "両手を前に上げて構える（4番の左右逆）" },
+  { no: 12, name: "並歩進歩搬攔捶",   t: 76, hint: "足を寄せてから踏み込み、拳を突く" },
+  { no: 13, name: "如封似閉",         t: 81, hint: "両手を引き寄せてから前へ押す" },
+  { no: 14, name: "十字手",           t: 86, hint: "向きを戻して両腕を大きく開き、上げてから胸の前で交差させて終わる" },
 ];
-
-// 動画ごとの開始秒と見分けるポイント（POSES と同じ並び）
-const VIEWS = {
-  back: {
-    id: "v6D7IM9EYZc", end: 94, note: "",
-    t: [0, 9, 12, 21, 27, 33, 44, 59, 63, 66, 72, 76, 81, 86],
-    hint: [
-      "0:00〜0:03は立って静止。0:04から両腕を胸の前に上げる",
-      "両腕を左右に開く",
-      "一歩前に出て、両手を合わせて押し出す（0:18〜0:20）",
-      "片手を胸の前、もう片手を前に出して構える",
-      "両手を引き寄せてから前へ押す",
-      "向きを変え、腕を斜め前に伸ばして止まる（0:37〜0:41）",
-      "体を左右にひねりながら腕を払う",
-      "両手を前に上げ、前足を軽く浮かせる",
-      "片手を頭の上に上げ、膝を持ち上げる（1:05）",
-      "膝の前を払いながら踏み出し、手で押し出す",
-      "両手を前に上げて構える（4番の左右逆）",
-      "足を寄せてから踏み込み、拳を突く",
-      "両手を引き寄せてから前へ押す",
-      "向きを戻して両腕を大きく開き、上げてから胸の前で交差させて終わる",
-    ],
-  },
-  front: {
-    id: "0euEnapBOnE", end: 98, note: "1:38以降は型第2番の動きです",
-    t: [0, 10, 14, 22, 30, 36, 48, 63, 67, 70, 76, 80, 85, 90],
-    hint: [
-      "0:00〜0:05は立って静止。0:06から両腕を胸の前に上げる",
-      "両腕を左右に開く（0:10〜0:12）",
-      "一歩前に出て、両手を胸の前で合わせて押し出す（0:16〜0:20）",
-      "片手を前に伸ばし、もう片手を胸の前に置いて構える",
-      "両手を胸の前に引き寄せてから前へ押す（0:30〜0:34）",
-      "体を横に向け、腕を横に伸ばして止まる（0:40〜0:46）",
-      "体を左右にひねりながら腕を払う。前から見ると腕の通り道がよくわかる",
-      "両手を前に上げ、前足を軽く浮かせる（1:04）",
-      "片手を頭の上に上げ、膝を持ち上げる",
-      "膝の前を払いながら踏み出し、手で押し出す（1:10〜1:14）",
-      "両手を前に上げて構える。このあたりは背中側を向いている",
-      "足を寄せてから踏み込み、拳を突く",
-      "両手を引き寄せてから前へ押す",
-      "こちらへ向き直って両腕を大きく開き（1:32）、頭上に上げてから胸の前で交差させる（1:36）",
-    ],
-  },
-};
-Object.values(VIEWS).forEach(v => { v.endOf = i => (i + 1 < v.t.length ? v.t[i + 1] : v.end); });
-let view = "back";
-const V = () => VIEWS[view];
+POSES.forEach((p, i) => { p.end = i + 1 < POSES.length ? POSES[i + 1].t : END; });
 
 // フリガナ（語ごとに [漢字, 読み]）。一般的な日本語読みで、教室での呼び方と違う場合があります
 const YOMI = {
@@ -279,72 +203,31 @@ const rubyName = p => YOMI[p.no].map(([k, r]) => r ? `<ruby>${k}<rt>${r}</rt></r
 const fmt = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
 const $ = id => document.getElementById(id);
 
-// 一覧（時間の欄は動画を切り替えるたびに書き換える）
+// 一覧
 const listEl = $("list");
 POSES.forEach((p, i) => {
   const li = document.createElement("li");
   li.innerHTML = `<button type="button"><span class="no">${p.no}</span><span class="nm">${rubyName(p)}</span>` +
-    `<span class="tm"></span><span class="ht"></span></button>`;
+    `<span class="tm">${fmt(p.t)}〜${fmt(p.end)}</span><span class="ht">${p.hint}</span></button>`;
   li.querySelector("button").addEventListener("click", () => jump(i));
   listEl.appendChild(li);
 });
 
-// くり返し範囲の選択肢
-["loopFrom", "loopTo"].forEach(id => {
-  $(id).innerHTML = POSES.map((p, i) => `<option value="${i}">${p.no}. ${p.name}</option>`).join("");
-});
-$("loopTo").value = "0";
-
-let player, current = -2, loopOn = false, subOn = true, rate = 1;
-const OUTSIDE = -1; // 型第1番の範囲外（前からの動画の1:38以降）
-
-function renderView() {
-  const v = V();
-  [...listEl.children].forEach((li, i) => {
-    li.querySelector(".tm").textContent = `${fmt(v.t[i])}〜${fmt(v.endOf(i))}`;
-    li.querySelector(".ht").textContent = v.hint[i];
-  });
-  document.querySelectorAll("[data-view]").forEach(b => b.setAttribute("aria-pressed", b.dataset.view === view));
-  $("viewNote").textContent = v.note;
-}
-
-function loopRange() {
-  let a = Number($("loopFrom").value), b = Number($("loopTo").value);
-  if (a > b) [a, b] = [b, a];
-  return [a, b];
-}
-function markLoop() {
-  const [a, b] = loopRange();
-  [...listEl.children].forEach((li, k) => li.classList.toggle("inloop", loopOn && k >= a && k <= b));
-}
-function setRange(a, b) {
-  a = Math.max(0, a); b = Math.min(POSES.length - 1, b);
-  $("loopFrom").value = String(a); $("loopTo").value = String(b);
-  markLoop();
-}
+let player, current = -1, loopOn = false, subOn = true;
 
 function indexAt(t) {
-  const v = V();
-  if (t >= v.end) return OUTSIDE;
-  for (let i = v.t.length - 1; i >= 0; i--) if (t >= v.t[i]) return i;
+  for (let i = POSES.length - 1; i >= 0; i--) if (t >= POSES[i].t) return i;
   return 0;
 }
 function show(i) {
   if (i === current) return;
   current = i;
-  if (i === OUTSIDE) {
-    $("subName").textContent = "型第1番はここまで";
-    $("subHint").textContent = V().note;
-    $("nowName").textContent = "型第1番はここまで";
-    $("nowHint").textContent = V().note;
-    [...listEl.children].forEach(li => li.classList.remove("active"));
-    return;
-  }
-  const p = POSES[i], hint = V().hint[i];
+  const p = POSES[i];
   $("subName").innerHTML = `${p.no}. ${rubyName(p)}`;
-  $("subHint").textContent = hint;
+  $("subHint").textContent = p.hint;
+  $("sub").hidden = !subOn;
   $("nowName").innerHTML = `${p.no}. ${rubyName(p)}`;
-  $("nowHint").textContent = hint;
+  $("nowHint").textContent = p.hint;
   [...listEl.children].forEach((li, k) => li.classList.toggle("active", k === i));
   if (window.matchMedia("(min-width: 900px)").matches) {
     listEl.children[i].scrollIntoView({ block: "nearest", behavior: "smooth" });
@@ -353,8 +236,8 @@ function show(i) {
 function jump(i) {
   if (!player || !player.seekTo) return;
   i = Math.max(0, Math.min(POSES.length - 1, i));
-  current = -2;
-  player.seekTo(V().t[i], true);
+  current = -1;
+  player.seekTo(POSES[i].t, true);
   player.playVideo();
   show(i);
 }
@@ -362,24 +245,25 @@ function jump(i) {
 function tick() {
   if (!player || !player.getCurrentTime) return;
   const t = player.getCurrentTime();
-  if (loopOn) {
-    const [a, b] = loopRange(), v = V();
-    if (t >= v.endOf(b) - 0.05 || t < v.t[a] - 0.5) { player.seekTo(v.t[a], true); show(a); return; }
+  const i = indexAt(t);
+  if (loopOn && current >= 0 && i !== current) {
+    const p = POSES[current];
+    if (t >= p.end - 0.05 || t < p.t) { player.seekTo(p.t, true); return; }
   }
-  show(indexAt(t));
+  show(i);
 }
 
-// くり返しの最後が動画の終わりと重なるとき、終了で頭に戻す
+// ループ対象が最後の姿勢のとき、動画終了で頭に戻す
 function onState(e) {
-  if (e.data === YT.PlayerState.ENDED && loopOn) {
-    player.seekTo(V().t[loopRange()[0]], true); player.playVideo();
+  if (e.data === YT.PlayerState.ENDED && loopOn && current >= 0) {
+    player.seekTo(POSES[current].t, true); player.playVideo();
   }
 }
 
 window.onYouTubeIframeAPIReady = () => {
   player = new YT.Player("player", {
     host: "https://www.youtube-nocookie.com",
-    videoId: V().id,
+    videoId: VIDEO_ID,
     playerVars: { rel: 0, playsinline: 1, fs: 0, modestbranding: 1, cc_load_policy: 0 },
     events: {
       onReady: () => { show(0); setInterval(tick, 150); },
@@ -388,47 +272,17 @@ window.onYouTubeIframeAPIReady = () => {
   });
 };
 
-// 動画を切り替えても、いまの姿勢から続けて見られるようにする
-document.querySelectorAll("[data-view]").forEach(b => b.addEventListener("click", () => {
-  if (b.dataset.view === view) return;
-  const i = current >= 0 ? current : 0;
-  view = b.dataset.view;
-  renderView();
-  current = -2;
-  if (player && player.loadVideoById) {
-    player.loadVideoById({ videoId: V().id, startSeconds: V().t[i] });
-    setTimeout(() => player.setPlaybackRate && player.setPlaybackRate(rate), 800);
-  }
-  show(i);
-}));
-
 $("prev").addEventListener("click", () => jump((current < 0 ? 0 : current) - 1));
 $("next").addEventListener("click", () => jump((current < 0 ? -1 : current) + 1));
-
 $("loop").addEventListener("click", e => {
   loopOn = !loopOn; e.currentTarget.setAttribute("aria-pressed", loopOn);
-  markLoop();
-  if (loopOn && player) { const a = loopRange()[0]; player.seekTo(V().t[a], true); player.playVideo(); show(a); }
+  if (loopOn && current >= 0 && player) { player.seekTo(POSES[current].t, true); player.playVideo(); }
 });
-function startLoop(a, b) {
-  setRange(a, b);
-  if (!loopOn) $("loop").click();
-  else if (player) { const s = loopRange()[0]; player.seekTo(V().t[s], true); player.playVideo(); show(s); }
-}
-$("loopAround").addEventListener("click", () => { const i = current >= 0 ? current : 0; startLoop(i - 1, i + 1); });
-$("loopOne").addEventListener("click", () => { const i = current >= 0 ? current : 0; startLoop(i, i); });
-["loopFrom", "loopTo"].forEach(id => $(id).addEventListener("change", () => {
-  markLoop();
-  if (loopOn && player) { const a = loopRange()[0]; player.seekTo(V().t[a], true); show(a); }
-}));
-
 document.querySelectorAll("[data-rate]").forEach(b => b.addEventListener("click", () => {
   if (!player || !player.setPlaybackRate) return;
-  rate = Number(b.dataset.rate);
-  player.setPlaybackRate(rate);
+  player.setPlaybackRate(Number(b.dataset.rate));
   document.querySelectorAll("[data-rate]").forEach(x => x.setAttribute("aria-pressed", x === b));
 }));
-renderView();
 $("subToggle").addEventListener("click", e => {
   subOn = !subOn; e.currentTarget.setAttribute("aria-pressed", subOn);
   $("sub").hidden = !subOn;
