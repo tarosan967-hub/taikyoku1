@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>太極拳 型第3番 字幕再生</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Zen+Old+Mincho:wght@600;700&display=swap">
+<style>
+/* 上に動画＋字幕、下に姿勢の一覧。広い画面では左右2段 */
+:root {
+  --bg: #eef1f3;
+  --surface: #ffffff;
+  --ink: #1d2730;
+  --muted: #5d6b77;
+  --line: #d5dde3;
+  --ai: #2b4f72;          /* 藍 */
+  --ai-soft: #dde7f0;
+  --shu: #b8462e;         /* 朱（現在位置の印） */
+  --sub-bg: rgba(12, 20, 28, .78);
+  --sub-fg: #ffffff;
+  --font-display: "Zen Old Mincho", "Yu Mincho", "Hiragino Mincho ProN", serif;
+  --font-body: "Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #12181e; --surface: #1a222a; --ink: #e6ebef; --muted: #9aa8b4; --line: #2c3742;
+    --ai: #8db4d8; --ai-soft: #22313f; --shu: #e07a5f; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #12181e; --surface: #1a222a; --ink: #e6ebef; --muted: #9aa8b4; --line: #2c3742;
+  --ai: #8db4d8; --ai-soft: #22313f; --shu: #e07a5f; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 15px; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 40px;
+}
+.wrap { max-width: 1180px; margin: 0 auto; display: grid; gap: 20px; }
+header h1 { font-family: var(--font-display); font-size: clamp(1.4rem, 3.5vw, 1.9rem); margin: 0; text-wrap: balance; letter-spacing: .04em; }
+header p { margin: 4px 0 0; color: var(--muted); font-size: .9rem; }
+header a { color: var(--ai); }
+.katas { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.katas a {
+  color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 4px;
+  padding: 6px 11px; min-height: 36px; font-size: .9rem; font-weight: 700; text-decoration: none;
+}
+.katas a:hover { border-color: var(--ai); }
+.katas a[aria-current="page"] { background: var(--ai); border-color: var(--ai); color: var(--surface); }
+
+.layout { display: grid; gap: 20px; grid-template-columns: 1fr; }
+@media (min-width: 900px) { .layout { grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); align-items: start; } .stage { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); } }
+
+.stage { display: grid; gap: 12px; min-width: 0; }
+/* 動画と字幕帯をひとまとめにする（字幕は動画に重ねず、すぐ下に出す） */
+.screen { display: flex; flex-direction: column; border-radius: 6px; overflow: hidden; background: #000; }
+.video { position: relative; width: 100%; max-width: 100%; aspect-ratio: 16 / 9; background: #000; }
+.video > #player, .video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.sub {
+  background: var(--sub-bg); color: var(--sub-fg);
+  padding: .45em .9em .55em; text-align: center; line-height: 1.45;
+  font-size: clamp(14px, 2.4vw, 20px); min-height: 3.6em;
+  display: flex; flex-direction: column; justify-content: center;
+}
+.sub b { font-family: var(--font-display); font-weight: 700; font-size: 1.15em; letter-spacing: .05em; }
+.sub span { font-size: .82em; opacity: .92; }
+.sub[hidden] { display: none !important; }
+.screen:fullscreen { border-radius: 0; justify-content: center; }
+.screen:fullscreen .video { aspect-ratio: auto; flex: 1 1 auto; }
+.screen:fullscreen .sub { font-size: clamp(18px, 2.6vw, 32px); }
+
+.unofficial {
+  border: 1px solid var(--shu); color: var(--ink); background: var(--surface);
+  border-radius: 6px; padding: 8px 12px; font-size: .85rem; margin-top: 10px;
+}
+.unofficial strong { color: var(--shu); }
+footer { font-size: .8rem; color: var(--muted); border-top: 1px solid var(--line); padding-top: 12px; }
+footer a { color: var(--ai); }
+
+.now { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 12px 14px; display: grid; gap: 2px; }
+.now .label { font-size: .75rem; letter-spacing: .12em; color: var(--muted); }
+.now .name { font-family: var(--font-display); font-size: 1.35rem; font-weight: 700; color: var(--ai); }
+.now .hint { color: var(--ink); }
+
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.group { display: flex; gap: 4px; align-items: center; }
+.group .cap { font-size: .75rem; color: var(--muted); margin-right: 2px; letter-spacing: .06em; }
+button {
+  font: inherit; font-size: .9rem; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 4px; padding: 6px 11px; cursor: pointer; min-height: 36px;
+}
+button:hover { border-color: var(--ai); }
+button:focus-visible { outline: 2px solid var(--ai); outline-offset: 2px; }
+button[aria-pressed="true"] { background: var(--ai); border-color: var(--ai); color: var(--surface); }
+.spacer { flex: 1 1 auto; }
+.views { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.views button { font-weight: 700; }
+.viewnote { margin: 0; font-size: .8rem; color: var(--muted); }
+.viewnote:empty { display: none; }
+
+.list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; min-width: 0; }
+.list li button {
+  width: 100%; text-align: left; display: grid; grid-template-columns: 2.2em minmax(0, 1fr) auto; gap: 4px 10px;
+  align-items: baseline; padding: 10px 12px; border-radius: 6px; background: var(--surface);
+}
+.list .no { font-family: var(--font-display); color: var(--muted); font-variant-numeric: tabular-nums; }
+.list .nm { font-weight: 700; line-height: 2; }
+rt { font-family: var(--font-body); font-weight: 500; font-size: .55em; letter-spacing: .02em; }
+.list rt { color: var(--muted); }
+.sub b, .now .name { line-height: 1.9; }
+.list .tm { font-size: .8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.list .ht { grid-column: 2 / 4; font-size: .85rem; color: var(--muted); }
+.list li.active button { border-color: var(--shu); box-shadow: inset 4px 0 0 var(--shu); background: var(--ai-soft); }
+.list li.active .no { color: var(--shu); }
+
+.note { font-size: .82rem; color: var(--muted); margin: 0; }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>太極拳 型第3番（33〜55番）</h1>
+    <nav class="katas" aria-label="型の切り替え">
+      <a href="./">第1番</a><a href="kata2.html">第2番</a><a href="kata3.html" aria-current="page">第3番</a><a href="kata4.html">第4番</a><a href="kata5.html">第5番</a>
+    </nav>
+    <p>JMMAの型三番の動画に、姿勢名と見分けるポイントを表示しながら再生します。蹴りが何度も出てくる型です。</p>
+    <p class="unofficial"><strong>非公式</strong>　このページは受講者が個人の学習用に作ったメモで、JMMA日本武術むすび協会の公式教材ではありません。姿勢の区切りや説明は作成者の解釈です。正しい動きは教室で先生に確認してください。</p>
+  </header>
+
+  <div class="layout">
+    <section class="stage" aria-label="動画">
+      <p class="viewnote" id="viewNote"></p>
+      <div class="screen" id="screen">
+        <div class="video"><div id="player"></div></div>
+        <div class="sub" id="sub" aria-live="polite"><b id="subName">再生すると姿勢名が出ます</b><span id="subHint"></span></div>
+      </div>
+
+      <div class="now" aria-live="polite">
+        <span class="label">いまの姿勢</span>
+        <span class="name" id="nowName">再生すると表示されます</span>
+        <span class="hint" id="nowHint"></span>
+      </div>
+
+      <div class="controls">
+        <div class="group"><button id="prev" type="button">◀ 前の姿勢</button><button id="next" type="button">次の姿勢 ▶</button></div>
+        <div class="group"><button id="loop" type="button" aria-pressed="false">この姿勢をくり返す</button></div>
+        <div class="group" role="group" aria-label="再生速度"><span class="cap">速度</span>
+          <button type="button" data-rate="0.5" aria-pressed="false">0.5</button>
+          <button type="button" data-rate="0.75" aria-pressed="false">0.75</button>
+          <button type="button" data-rate="1" aria-pressed="true">1</button>
+        </div>
+        <div class="group"><button id="subToggle" type="button" aria-pressed="true">字幕</button><button id="fs" type="button">全画面</button></div>
+      </div>
+      <p class="note">秒数は動画を見て判断した目安です。つなぎの動作は数秒前後することがあります（とくに44〜47番）。逆光のため、左右は確認していません。</p>
+    </section>
+
+    <section aria-label="姿勢の一覧">
+      <ol class="list" id="list"></ol>
+    </section>
+  </div>
+
+  <footer>
+    非公式の学習用メモです。動画の著作権はJMMA日本武術むすび協会にあり、YouTubeの埋め込みプレーヤーで再生しています。
+    姿勢の一覧は<a href="https://www.jmma-musubi.com/%E5%A4%AA%E6%A5%B5%E6%8B%B3/" target="_blank" rel="noopener">堺市JMMA太極拳教室のページ</a>をもとにしています。
+  </footer>
+</div>
+
+<script>
+const POSES = [
+  { no: 33, name: "単鞭" },
+  { no: 34, name: "右高探馬" },
+  { no: 35, name: "右分脚" },
+  { no: 36, name: "左高探馬" },
+  { no: 37, name: "左分脚" },
+  { no: 38, name: "転身蹬脚" },
+  { no: 39, name: "楼膝拗歩" },
+  { no: 40, name: "提腿下栽捶" },
+  { no: 41, name: "翻身撇身捶" },
+  { no: 42, name: "上歩右高探馬" },
+  { no: 43, name: "右分脚" },
+  { no: 44, name: "退歩右打虎勢" },
+  { no: 45, name: "右貫拳" },
+  { no: 46, name: "退歩左打虎勢" },
+  { no: 47, name: "左貫拳" },
+  { no: 48, name: "右蹬脚" },
+  { no: 49, name: "双風貫耳" },
+  { no: 50, name: "坐盤勢" },
+  { no: 51, name: "披身踹脚" },
+  { no: 52, name: "転身右踩脚" },
+  { no: 53, name: "並歩進歩搬欄捶" },
+  { no: 54, name: "如封似閉" },
+  { no: 55, name: "十字手" },
+];
+
+// 動画ごとの開始秒と見分けるポイント（POSES と同じ並び）
+const VIEWS = {
+  main: {
+    id: "MmBWjUun-jM", end: 120, note: "",
+    t: [0, 3, 8, 12, 16, 20, 27, 33, 38, 43, 47, 52, 57, 60, 64, 68, 73, 77, 81, 85, 90, 102, 110],
+    hint: [
+      "片腕を横に伸ばした姿勢から始まる",
+      "足を寄せ、片手を前へ出す",
+      "片足を上げて蹴る（0:10）。蹴りの1回目",
+      "足を下ろし、片手を前へ出す",
+      "片足を上げて蹴る（0:18）。蹴りの2回目",
+      "向きを変え、片足を上げて蹴る（0:25）。蹴りの3回目",
+      "膝の前を払いながら踏み出し、手で押し出す",
+      "片足を引き上げてから、深くかがんで拳を下へ突く（0:36）",
+      "体を起こして向きを変え、拳を打ち下ろす",
+      "踏み出して足を寄せ、片手を前へ出す",
+      "片足を上げて蹴る（0:49）。蹴りの4回目",
+      "足を下ろして下がり、腕を上下に構える",
+      "腕を回して拳を横から打つ",
+      "もう一度下がり、腕を上下に構える（1:00〜1:03）",
+      "腕を回して拳を横から打つ",
+      "片足を上げて蹴る（1:10〜1:12）。蹴りの5回目",
+      "両腕を大きく開いて（1:16）、両拳を内へ寄せる",
+      "両手を胸の前に寄せ、足を交差させて腰を落とす（1:18〜1:20）",
+      "両腕を広げ、片足を上げて蹴る（1:22）。蹴りの6回目",
+      "向きを変え、片足を上げて蹴る（1:27）。蹴りの7回目",
+      "足を寄せてから踏み込み、拳を突く（1:38〜1:42）",
+      "両手を引き寄せてから前へ押す",
+      "両腕を大きく開いて上げ（1:52）、胸の前で交差させて終わる",
+    ],
+  },
+};
+Object.values(VIEWS).forEach(v => { v.endOf = i => (i + 1 < v.t.length ? v.t[i + 1] : v.end); });
+let view = "main";
+const V = () => VIEWS[view];
+
+// フリガナ（語ごとに [漢字, 読み]）。一般的な日本語読みで、教室での呼び方と違う場合があります
+const YOMI = {
+  33: [["単鞭","たんべん"]],
+  34: [["右","みぎ"],["高探馬","こうたんば"]],
+  35: [["右","みぎ"],["分脚","ぶんきゃく"]],
+  36: [["左","ひだり"],["高探馬","こうたんば"]],
+  37: [["左","ひだり"],["分脚","ぶんきゃく"]],
+  38: [["転身","てんしん"],["蹬脚","とうきゃく"]],
+  39: [["楼膝","ろうしつ"],["拗歩","ようほ"]],
+  40: [["提腿","ていたい"],["下栽捶","かさいすい"]],
+  41: [["翻身","ほんしん"],["撇身捶","へいしんすい"]],
+  42: [["上歩","じょうほ"],["右","みぎ"],["高探馬","こうたんば"]],
+  43: [["右","みぎ"],["分脚","ぶんきゃく"]],
+  44: [["退歩","たいほ"],["右","みぎ"],["打虎勢","だこせい"]],
+  45: [["右","みぎ"],["貫拳","かんけん"]],
+  46: [["退歩","たいほ"],["左","ひだり"],["打虎勢","だこせい"]],
+  47: [["左","ひだり"],["貫拳","かんけん"]],
+  48: [["右","みぎ"],["蹬脚","とうきゃく"]],
+  49: [["双風","そうふう"],["貫耳","かんじ"]],
+  50: [["坐盤勢","ざばんせい"]],
+  51: [["披身","ひしん"],["踹脚"]],
+  52: [["転身","てんしん"],["右","みぎ"],["踩脚","さいきゃく"]],
+  53: [["並歩","へいほ"],["進歩","しんぽ"],["搬欄捶","はんらんすい"]],
+  54: [["如封","じょふう"],["似閉","じへい"]],
+  55: [["十字手","じゅうじしゅ"]],
+};
+const rubyName = p => YOMI[p.no].map(([k, r]) => r ? `<ruby>${k}<rt>${r}</rt></ruby>` : k).join("");
+
+const fmt = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
+const $ = id => document.getElementById(id);
+
+// 一覧
+const listEl = $("list");
+POSES.forEach((p, i) => {
+  const li = document.createElement("li");
+  li.innerHTML = `<button type="button"><span class="no">${p.no}</span><span class="nm">${rubyName(p)}</span>` +
+    `<span class="tm"></span><span class="ht"></span></button>`;
+  li.querySelector("button").addEventListener("click", () => jump(i));
+  listEl.appendChild(li);
+});
+
+let player, current = -2, loopOn = false, subOn = true, rate = 1;
+const OUTSIDE = -1; // 型第3番の範囲外（動画の前後）
+
+function renderView() {
+  const v = V();
+  [...listEl.children].forEach((li, i) => {
+    li.querySelector(".tm").textContent = `${fmt(v.t[i])}〜${fmt(v.endOf(i))}`;
+    li.querySelector(".ht").textContent = v.hint[i];
+  });
+  $("viewNote").textContent = v.note;
+}
+
+function indexAt(t) {
+  const v = V();
+  if (t >= v.end || t < v.t[0] - 1) return OUTSIDE;
+  for (let i = v.t.length - 1; i >= 0; i--) if (t >= v.t[i]) return i;
+  return 0;
+}
+function show(i) {
+  if (i === current) return;
+  current = i;
+  if (i === OUTSIDE) {
+    $("subName").textContent = "型第3番の範囲外";
+    $("subHint").textContent = V().note;
+    $("nowName").textContent = "型第3番の範囲外";
+    $("nowHint").textContent = V().note;
+    $("sub").hidden = !subOn;
+    [...listEl.children].forEach(li => li.classList.remove("active"));
+    return;
+  }
+  const p = POSES[i], hint = V().hint[i];
+  $("subName").innerHTML = `${p.no}. ${rubyName(p)}`;
+  $("subHint").textContent = hint;
+  $("sub").hidden = !subOn;
+  $("nowName").innerHTML = `${p.no}. ${rubyName(p)}`;
+  $("nowHint").textContent = hint;
+  [...listEl.children].forEach((li, k) => li.classList.toggle("active", k === i));
+  if (window.matchMedia("(min-width: 900px)").matches) {
+    listEl.children[i].scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }
+}
+function jump(i) {
+  if (!player || !player.seekTo) return;
+  i = Math.max(0, Math.min(POSES.length - 1, i));
+  current = -2;
+  player.seekTo(V().t[i], true);
+  player.playVideo();
+  show(i);
+}
+
+function tick() {
+  if (!player || !player.getCurrentTime) return;
+  const t = player.getCurrentTime();
+  const i = indexAt(t);
+  if (loopOn && current >= 0 && i !== current) {
+    const v = V();
+    if (t >= v.endOf(current) - 0.05 || t < v.t[current]) { player.seekTo(v.t[current], true); return; }
+  }
+  show(i);
+}
+
+// ループ対象が動画の終わりと重なるとき、終了で頭に戻す
+function onState(e) {
+  if (e.data === YT.PlayerState.ENDED && loopOn && current >= 0) {
+    player.seekTo(V().t[current], true); player.playVideo();
+  }
+}
+
+window.onYouTubeIframeAPIReady = () => {
+  player = new YT.Player("player", {
+    host: "https://www.youtube-nocookie.com",
+    videoId: V().id,
+    playerVars: { start: V().t[0], rel: 0, playsinline: 1, fs: 0, modestbranding: 1, cc_load_policy: 0 },
+    events: {
+      onReady: () => { show(0); setInterval(tick, 150); },
+      onStateChange: onState,
+    },
+  });
+};
+
+$("prev").addEventListener("click", () => jump((current < 0 ? 0 : current) - 1));
+$("next").addEventListener("click", () => jump((current < 0 ? -1 : current) + 1));
+$("loop").addEventListener("click", e => {
+  loopOn = !loopOn; e.currentTarget.setAttribute("aria-pressed", loopOn);
+  if (loopOn && current >= 0 && player) { player.seekTo(V().t[current], true); player.playVideo(); }
+});
+document.querySelectorAll("[data-rate]").forEach(b => b.addEventListener("click", () => {
+  if (!player || !player.setPlaybackRate) return;
+  rate = Number(b.dataset.rate);
+  player.setPlaybackRate(rate);
+  document.querySelectorAll("[data-rate]").forEach(x => x.setAttribute("aria-pressed", x === b));
+}));
+renderView();
+$("subToggle").addEventListener("click", e => {
+  subOn = !subOn; e.currentTarget.setAttribute("aria-pressed", subOn);
+  $("sub").hidden = !subOn;
+});
+$("fs").addEventListener("click", () => {
+  const box = $("screen");
+  if (document.fullscreenElement) document.exitFullscreen();
+  else if (box.requestFullscreen) box.requestFullscreen().catch(() => {});
+  else if (box.webkitRequestFullscreen) box.webkitRequestFullscreen();
+});
+</script>
+<script src="https://www.youtube.com/iframe_api"></script>
+</body>
+</html>

@@ -48,6 +48,13 @@ body {
 header h1 { font-family: var(--font-display); font-size: clamp(1.4rem, 3.5vw, 1.9rem); margin: 0; text-wrap: balance; letter-spacing: .04em; }
 header p { margin: 4px 0 0; color: var(--muted); font-size: .9rem; }
 header a { color: var(--ai); }
+.katas { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.katas a {
+  color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 4px;
+  padding: 6px 11px; min-height: 36px; font-size: .9rem; font-weight: 700; text-decoration: none;
+}
+.katas a:hover { border-color: var(--ai); }
+.katas a[aria-current="page"] { background: var(--ai); border-color: var(--ai); color: var(--surface); }
 
 .layout { display: grid; gap: 20px; grid-template-columns: 1fr; }
 @media (min-width: 900px) { .layout { grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); align-items: start; } .stage { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); } }
@@ -121,6 +128,9 @@ rt { font-family: var(--font-body); font-weight: 500; font-size: .55em; letter-s
 <div class="wrap">
   <header>
     <h1>太極拳 型第1番</h1>
+    <nav class="katas" aria-label="型の切り替え">
+      <a href="./" aria-current="page">第1番</a><a href="kata2.html">第2番</a><a href="kata3.html">第3番</a><a href="kata4.html">第4番</a><a href="kata5.html">第5番</a>
+    </nav>
     <p>JMMAの型第1番の動画（後ろから撮影・前から撮影の2本）に、姿勢名と見分けるポイントを表示しながら再生します。
       「0. 起式‐三體式（形意拳）」は<a href="https://www.youtube.com/watch?v=bOBaw6wwiK0" target="_blank" rel="noopener">別の動画</a>です。</p>
     <p class="unofficial"><strong>非公式</strong>　このページは受講者が個人の学習用に作ったメモで、JMMA日本武術むすび協会の公式教材ではありません。姿勢の区切りや説明は作成者の解釈です。正しい動きは教室で先生に確認してください。</p>
